@@ -45,8 +45,8 @@ app.get('/api/toy/:id', (req, res) => {
     toyService.getById(id)
         .then(toy => res.send(toy))
         .catch(err => {
-            console.log(`Had issues getting toy:${toyId}`, err)
-            res.status(400).send({ msg: `Had issues getting toy:${toyId}` })
+            console.log(`Had issues getting toy:${id}`, err)
+            res.status(400).send({ msg: `Had issues getting toy:${id}` })
         })
 })
 
@@ -56,8 +56,8 @@ app.delete('/api/toy/:id', (req, res) => {
     toyService.remove(id)
         .then(toy => res.send(toy))
         .catch(err => {
-            console.log(`Had issues getting toy:${toyId}`, err)
-            res.status(400).send({ msg: `Had issues getting toy:${toyId}` })
+            console.log(`Had issues getting toy:${id}`, err)
+            res.status(400).send({ msg: `Had issues getting toy:${id}` })
         })
 })
 
@@ -85,11 +85,6 @@ app.get('/**', (req, res) => {
     res.sendFile(path.resolve('public/index.html'))
 })
 
-const port = 3030
-app.listen(port, () => {
-    console.log('Server is up and listening to', port)
-})
-
 function parseQueryParams(queryParams) {
     const filterBy = {
         txt: queryParams.txt || '',
@@ -110,3 +105,8 @@ function parseQueryParams(queryParams) {
 
     return { filterBy }
 }
+
+const port = 3030
+app.listen(port, () => {
+    console.log('Server is up and listening to', port)
+})
