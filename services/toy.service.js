@@ -9,10 +9,13 @@ export const toyService = {
     save,
 }
 
-let toys = _generateToys(15)
+let toys = []
 
 
 function query({ filterBy = {}, sortBy = {} }) {
+
+    toys = _generateToys(15)
+
     let filteredToys = [...toys]
 
     if (filterBy.txt) {
