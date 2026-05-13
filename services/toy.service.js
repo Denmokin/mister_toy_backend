@@ -1,6 +1,7 @@
 import { utilService } from "./util.service.js"
 
 const TOYS_PATH = 'data/toys.json'
+const USERS_PATH = 'data/user.json'
 
 export const toyService = {
     query,
@@ -102,6 +103,8 @@ function _generateToys(count = 10) {
 }
 
 function _generateToy(idx) {
+
+
     const toyNames = [
         'Talking Doll', 'Remote Control Car', 'Building Blocks Set',
         'Stuffed Teddy Bear', 'Wooden Train Set', 'Bubble Machine',
@@ -119,6 +122,8 @@ function _generateToy(idx) {
     const name = toyNames[idx % toyNames.length]
     const labelCount = Math.floor(Math.random() * 3) + 1
 
+    const creator = _getRandomUser()
+
     return {
         _id: utilService.makeId('toy'),
         name,
@@ -127,5 +132,14 @@ function _generateToy(idx) {
         labels: utilService.getRandomFromArr(allToyLabels, labelCount),
         createdAt: utilService.getRandomDate(),
         inStock: Math.random() > 0.6,
+        creator,
     }
+}
+
+function _getRandomUser() {
+    let users = utilService.readJsonFile(USERS_PATH)
+    users = users.filter(user => user.isAdmin !== true)
+    randIdx = utilService.getRandomIntInclusive(0, users.length)
+    const { _id, fullname } = users[idx]
+    return { _id, fullname }
 }

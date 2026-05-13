@@ -1,0 +1,33 @@
+[
+    {
+        "id": "user1",
+        "fullname": "Puki Ja",
+        "username": "puki",
+        "password": "pp"
+    },
+    {
+        "id": "user2",
+        "fullname": "Shimi M",
+        "username": "shimi",
+        "password": "ss"
+    },
+    {
+        "id": "user3",
+        "fullname": "Dana Lev",
+        "username": "dana",
+        "password": "dd"
+    },
+    {
+        "id": "user4",
+        "fullname": "Yossi K",
+        "username": "yossi",
+        "password": "yy"
+    },
+    {
+        "id": "user5",
+        "fullname": "Admin",
+        "username": "Admin Adminovich",
+        "password": "admin",
+        "isAdmin": "true"
+    }
+]
