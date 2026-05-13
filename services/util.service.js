@@ -160,18 +160,3 @@ function getRandomDate(start = new Date(2020, 0, 1), end = new Date()) {
 export function toCap(string) {
 	return _.capitalize(string)
 }
-
-
-fs.watchFile('data/toy.json', async (curr, prev) => {
-    if (curr.mtime !== prev.mtime) {
-        try {
-            // Fetch the freshly updated toys list
-            const toys = await toyService.query()
-            
-            // Broadcast the entire updated array to all connected clients
-            gIoServer.emit('toys-changed', toys)
-        } catch (err) {
-            console.error('Failed to broadcast file change:', err)
-        }
-    }
-})

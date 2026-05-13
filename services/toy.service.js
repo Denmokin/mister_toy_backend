@@ -12,7 +12,7 @@ export const toyService = {
 let toys = _generateToys(15)
 
 
-function query(filterBy = _getDefaultFilters()) {
+function query({ filterBy = {}, sortBy = {} }) {
     let filteredToys = [...toys]
 
     if (filterBy.txt) {
@@ -21,7 +21,7 @@ function query(filterBy = _getDefaultFilters()) {
     }
 
     if (filterBy.inStock !== undefined && filterBy.inStock !== '') {
-        filteredToys = filteredToys.filter(toy => toy.inStock === filterBy.inStock)
+        filteredToys = filteredToys.filter(toy => toy.inStock === true)
     }
 
     if (!filterBy.maxPrice) filterBy.maxPrice = Infinity

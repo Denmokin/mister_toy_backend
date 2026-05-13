@@ -29,7 +29,7 @@ app.use(express.json())
 app.set('query parser', 'extended')
 
 app.get('/api/toy', (req, res) => {
-    const queryOptions = parseQueryParams(req.params)
+    const queryOptions = parseQueryParams(req.query)
     toyService.query(queryOptions)
         .then(toys => res.send(toys))
         .catch(err => {
