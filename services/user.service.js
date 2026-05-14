@@ -1,7 +1,7 @@
 
 import { utilService } from "./util.service.js"
 
-const USERS_PATH = './data/user.json'
+const USERS_PATH = 'data/users.json'
 let users = []
 
 export const userService = {
@@ -17,8 +17,11 @@ utilService.readJsonFile(USERS_PATH)
     users = data
   })
 
+  
+
 function query() {
   const usersToReturn = users.map(user => ({ id: user.id, fullname: user.fullname, }))
+  console.log('usersToReturn: ', usersToReturn)
   return Promise.resolve(usersToReturn)
 }
 

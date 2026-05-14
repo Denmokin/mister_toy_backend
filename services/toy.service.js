@@ -1,7 +1,7 @@
 import { utilService } from "./util.service.js"
 
 const TOYS_PATH = 'data/toys.json'
-const USERS_PATH = 'data/user.json'
+const USERS_PATH = 'data/users.json'
 
 export const toyService = {
     query,
@@ -11,7 +11,6 @@ export const toyService = {
 }
 
 let toys = []
-
 
 function query({ filterBy = {}, sortBy = {} }) {
 
@@ -137,9 +136,9 @@ function _generateToy(idx) {
 }
 
 function _getRandomUser() {
-    let users = utilService.readJsonFile(USERS_PATH)
-    users = users.filter(user => user.isAdmin !== true)
-    randIdx = utilService.getRandomIntInclusive(0, users.length)
+    let users = utilService.readJsonFileSync(USERS_PATH)
+    users = users.filter(user => user.isAdmin !== 'true')
+    const idx = utilService.getRandomIntInclusive(0, users.length - 1)
     const { _id, fullname } = users[idx]
     return { _id, fullname }
 }

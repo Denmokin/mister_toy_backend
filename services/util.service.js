@@ -9,6 +9,7 @@ export const utilService = {
 
 	readJsonFile,
 	writeJsonFile,
+	readJsonFileSync,
 	download,
 	httpGet,
 
@@ -50,6 +51,11 @@ function writeJsonFile(path, data) {
 	})
 }
 
+
+function readJsonFileSync(path) {
+	const data = fs.readFileSync(path, 'utf8')
+	return JSON.parse(data)
+}
 
 function download(url, fileName) {
 	return new Promise((resolve, reject) => {

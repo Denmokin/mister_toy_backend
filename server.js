@@ -119,7 +119,7 @@ app.post('/api/auth/login', (req, res) => {
         .catch(err => res.status(404).send('Invalid Credentials.'))
 })
 
-app.post('/api/auth.logout', (req, res) => {
+app.post('/api/auth/logout', (req, res) => {
     res.clearCookie('loginToken')
     res.send('Logged Out!')
 })
