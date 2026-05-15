@@ -104,7 +104,10 @@ app.post('/api/auth/signup', (req, res) => {
                 send('Cannot Signup')
             }
         })
-        .catch(err => res.status(400).send('Username Taken.', err))
+        .catch(err => {
+            console.log('Username Taken: ', err)
+            res.status(400).send('Username Taken.')
+        })
 })
 
 
@@ -116,7 +119,10 @@ app.post('/api/auth/login', (req, res) => {
             res.cookie('loginToken', loginToken)
             res.send(user)
         })
-        .catch(err => res.status(404).send('Invalid Credentials.'))
+        .catch(err => {
+            console.log('Invalid Credentials: ', err)
+            res.status(404).send('Invalid Credentials.')
+        })
 })
 
 app.post('/api/auth/logout', (req, res) => {
@@ -131,7 +137,8 @@ app.get('/api/user', (req, res) => {
     userService.query()
         .then(users => res.send(users))
         .catch(err => {
-            res.status(400).send('Cannot load users', err)
+            console.log('Cannot load users: ', err)
+            res.status(400).send('Cannot load users')
         })
 })
 
@@ -141,7 +148,8 @@ app.get('/api/user/:id', (req, res) => {
     userService.getById(id)
         .then(user => res.send(user))
         .catch(err => {
-            res.status(400).send('Cannot get user', id, err)
+            console.log('Cannot get user: ', id, err)
+            res.status(400).send(`Cannot get user:${id}`)
         })
 })
 

@@ -90,7 +90,6 @@ function _saveToysToFile() {
 
 // Toy Generation 
 
-
 function _generateToys(count = 10) {
     let loadedToys = utilService.readJsonFile(TOYS_PATH)
     if (loadedToys && loadedToys.length > 0) return loadedToys

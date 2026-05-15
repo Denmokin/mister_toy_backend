@@ -29,23 +29,5 @@
     "username": "Admin",
     "password": "admin",
     "isAdmin": "true"
-  },
-  {
-    "username": "Denis",
-    "password": "323669986",
-    "fullname": "dm",
-    "id": "user46"
-  },
-  {
-    "username": "aa",
-    "password": "aa",
-    "fullname": "aa",
-    "id": "user181"
-  },
-  {
-    "username": "ss",
-    "password": "ss",
-    "fullname": "ss",
-    "id": "user242"
   }
 ]
