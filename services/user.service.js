@@ -46,7 +46,7 @@ function add(user) {
     .then(existingUser => {
       if (existingUser) return Promise.reject(new Error('Username taken'))
 
-      user.id = utilService.makeId('user')
+      user._id = utilService.makeId('user')
       users.push(user)
 
       return _saveUsersToFile()

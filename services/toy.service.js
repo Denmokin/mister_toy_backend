@@ -1,4 +1,6 @@
 import { utilService } from "./util.service.js"
+import { userService } from "./user.service.js"
+import { authService } from "./auth.service.js"
 
 const TOYS_PATH = 'data/toys.json'
 const USERS_PATH = 'data/users.json'
@@ -12,9 +14,9 @@ export const toyService = {
 
 let toys = []
 
-function query({ filterBy = {}, sortBy = {} }) {
+async function query({ filterBy = {}, sortBy = {} }) {
 
-    toys = _generateToys(15)
+    toys = await _generateToys(15)
 
     let filteredToys = [...toys]
 
@@ -50,7 +52,8 @@ function remove(toyId) {
 }
 
 
-function save(toyToSave) {
+function save(toyToSave, loggedInUser) {
+
     if (toyToSave._id) {
         const idx = toys.findIndex(currToy => currToy._id === toyToSave._id)
         if (idx === -1) return Promise.reject('Toy not found') // Added missing 'return'
@@ -58,10 +61,14 @@ function save(toyToSave) {
         const toyToUpdate = toys[idx]
         toys[idx] = { ...toyToUpdate, ...toyToSave }
         toyToSave = toys[idx]
+
     } else {
+        const { _id, fullname } = loggedInUser
         toyToSave._id = utilService.makeId('toy')
         toyToSave.createdAt = utilService.getRandomDate()
+        toyToSave.creator = { _id, fullname }
         toys.push(toyToSave)
+        console.log('toyToSave: ', toyToSave)
     }
 
     _saveToysToFile()
@@ -90,8 +97,8 @@ function _saveToysToFile() {
 
 // Toy Generation 
 
-function _generateToys(count = 10) {
-    let loadedToys = utilService.readJsonFile(TOYS_PATH)
+async function _generateToys(count = 10) {
+    let loadedToys = await utilService.readJsonFile(TOYS_PATH)
     if (loadedToys && loadedToys.length > 0) return loadedToys
 
     loadedToys = Array.from({ length: count }, (_, i) => _generateToy(i))

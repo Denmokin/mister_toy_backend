@@ -80,7 +80,8 @@ app.put('/api/toy/:id', requireUser, (req, res) => {
 
 app.post('/api/toy/', requireUser, (req, res) => {
     const toy = req.body
-    toyService.save(toy)
+    const loggedInUser = authService.validateToken(req.cookies.loginToken)
+    toyService.save(toy, loggedInUser)
         .then(toyToSave => res.send(toyToSave))
         .catch(err => {
             console.log(`Had issues updating toy`, err)
