@@ -17,7 +17,7 @@ utilService.readJsonFile(USERS_PATH)
     users = data
   })
 
-  
+
 
 function query() {
   const usersToReturn = users.map(user => ({ id: user.id, fullname: user.fullname, }))
@@ -32,7 +32,8 @@ function getById(userId) {
 }
 
 function getByUsername(userName) {
-  const user = users.find(currUser => currUser.username === userName)
+  const user = users.find(currUser => currUser.username.toLowerCase() === userName.toLowerCase()
+  )
   return Promise.resolve(user)
 }
 

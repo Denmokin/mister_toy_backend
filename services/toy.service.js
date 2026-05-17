@@ -143,7 +143,7 @@ function _generateToy(idx) {
 
 function _getRandomUser() {
     let users = utilService.readJsonFileSync(USERS_PATH)
-    users = users.filter(user => user.isAdmin !== 'true')
+    users = users.filter(user => !user.isAdmin)
     const idx = utilService.getRandomIntInclusive(0, users.length - 1)
     const { _id, fullname } = users[idx]
     return { _id, fullname }
