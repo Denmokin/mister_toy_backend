@@ -21,7 +21,6 @@ utilService.readJsonFile(USERS_PATH)
 
 function query() {
   const usersToReturn = users.map(user => ({ id: user.id, fullname: user.fullname, }))
-  console.log('usersToReturn: ', usersToReturn)
   return Promise.resolve(usersToReturn)
 }
 

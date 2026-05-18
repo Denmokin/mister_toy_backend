@@ -29,6 +29,12 @@ async function query({ filterBy = {}, sortBy = {} }) {
         filteredToys = filteredToys.filter(toy => toy.inStock === true)
     }
 
+    if (filterBy.labels && filterBy.labels.length && !filterBy.labels.includes('')) {
+        filteredToys = filteredToys.filter(toy =>
+            filterBy.labels.some(label => toy.labels.includes(label))
+        )
+    }
+
     if (!filterBy.maxPrice) filterBy.maxPrice = Infinity
     filteredToys = filteredToys.filter(toy => toy.price <= filterBy.maxPrice)
 
@@ -68,7 +74,6 @@ function save(toyToSave, loggedInUser) {
         toyToSave.createdAt = utilService.getRandomDate()
         toyToSave.creator = { _id, fullname }
         toys.push(toyToSave)
-        console.log('toyToSave: ', toyToSave)
     }
 
     _saveToysToFile()
