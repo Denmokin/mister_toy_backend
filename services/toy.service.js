@@ -15,69 +15,84 @@ export const toyService = {
 let toys = []
 
 async function query({ filterBy = {}, sortBy = {} }) {
+    try {
+        toys = await _generateToys(15)
 
-    toys = await _generateToys(15)
+        let filteredToys = [...toys]
 
-    let filteredToys = [...toys]
+        if (filterBy.txt) {
+            const regExp = new RegExp(filterBy.txt, 'i')
+            filteredToys = filteredToys.filter(toy => regExp.test(toy.name))
+        }
 
-    if (filterBy.txt) {
-        const regExp = new RegExp(filterBy.txt, 'i')
-        filteredToys = filteredToys.filter(toy => regExp.test(toy.name))
+        if (filterBy.inStock !== undefined && filterBy.inStock !== '') {
+            filteredToys = filteredToys.filter(toy => toy.inStock === true)
+        }
+
+        if (filterBy.labels && filterBy.labels.length && !filterBy.labels.includes('')) {
+            filteredToys = filteredToys.filter(toy =>
+                filterBy.labels.some(label => toy.labels.includes(label))
+            )
+        }
+
+        if (!filterBy.maxPrice) filterBy.maxPrice = Infinity
+        filteredToys = filteredToys.filter(toy => toy.price <= filterBy.maxPrice)
+
+        return filteredToys
+    } catch (err) {
+        console.error('toyService.query failed:', err)
+        throw err
     }
-
-    if (filterBy.inStock !== undefined && filterBy.inStock !== '') {
-        filteredToys = filteredToys.filter(toy => toy.inStock === true)
-    }
-
-    if (filterBy.labels && filterBy.labels.length && !filterBy.labels.includes('')) {
-        filteredToys = filteredToys.filter(toy =>
-            filterBy.labels.some(label => toy.labels.includes(label))
-        )
-    }
-
-    if (!filterBy.maxPrice) filterBy.maxPrice = Infinity
-    filteredToys = filteredToys.filter(toy => toy.price <= filterBy.maxPrice)
-
-    return Promise.resolve(filteredToys)
 }
 
-
-function getById(toyId) {
-    const toy = toys.find(toy => toy._id === toyId)
-    return Promise.resolve(toy)
-}
-
-function remove(toyId) {
-    const idx = toys.findIndex(toy => toy._id === toyId)
-    if (idx === -1) return Promise.reject('Toy not found')
-
-    toys.splice(idx, 1)
-
-    _saveToysToFile()
-    return Promise.resolve(toys)
-}
-
-
-function save(toyToSave, loggedInUser) {
-
-    if (toyToSave._id) {
-        const idx = toys.findIndex(currToy => currToy._id === toyToSave._id)
-        if (idx === -1) return Promise.reject('Toy not found') // Added missing 'return'
-
-        const toyToUpdate = toys[idx]
-        toys[idx] = { ...toyToUpdate, ...toyToSave }
-        toyToSave = toys[idx]
-
-    } else {
-        const { _id, fullname } = loggedInUser
-        toyToSave._id = utilService.makeId('toy')
-        toyToSave.createdAt = utilService.getRandomDate()
-        toyToSave.creator = { _id, fullname }
-        toys.push(toyToSave)
+async function getById(toyId) {
+    try {
+        const toy = toys.find(toy => toy._id === toyId)
+        if (!toy) throw new Error(`Toy ${toyId} not found`)
+        return toy
+    } catch (err) {
+        console.error('toyService.getById failed:', err)
+        throw err
     }
+}
 
-    _saveToysToFile()
-    return Promise.resolve(toyToSave)
+async function remove(toyId) {
+    try {
+        const idx = toys.findIndex(toy => toy._id === toyId)
+        if (idx === -1) throw new Error('Toy not found')
+
+        toys.splice(idx, 1)
+        await _saveToysToFile()
+    } catch (err) {
+        console.error('toyService.remove failed:', err)
+        throw err
+    }
+}
+
+async function save(toyToSave, loggedInUser) {
+    try {
+        if (toyToSave._id) {
+            const idx = toys.findIndex(currToy => currToy._id === toyToSave._id)
+            if (idx === -1) throw new Error('Toy not found')
+
+            const toyToUpdate = toys[idx]
+            toys[idx] = { ...toyToUpdate, ...toyToSave }
+            toyToSave = toys[idx]
+
+        } else {
+            const { _id, fullname } = loggedInUser
+            toyToSave._id = utilService.makeId('toy')
+            toyToSave.createdAt = utilService.getRandomDate()
+            toyToSave.creator = { _id, fullname }
+            toys.push(toyToSave)
+        }
+
+        await _saveToysToFile()
+        return toyToSave
+    } catch (err) {
+        console.error('toyService.save failed:', err)
+        throw err
+    }
 }
 
 function _getEmptyToy() {
@@ -92,29 +107,24 @@ function _getEmptyToy() {
 }
 
 function _getDefaultFilters() {
-    return { txt: '', labels: [], inStock: '', maxPrice: '', }
+    return { txt: '', labels: [], inStock: '', maxPrice: '' }
 }
 
-function _saveToysToFile() {
-    return utilService.writeJsonFile(TOYS_PATH, toys)
+async function _saveToysToFile() {
+    return await utilService.writeJsonFile(TOYS_PATH, toys)
 }
-
-
-// Toy Generation 
 
 async function _generateToys(count = 10) {
     let loadedToys = await utilService.readJsonFile(TOYS_PATH)
     if (loadedToys && loadedToys.length > 0) return loadedToys
 
     loadedToys = Array.from({ length: count }, (_, i) => _generateToy(i))
-    utilService.writeJsonFile(TOYS_PATH, loadedToys)
+    await utilService.writeJsonFile(TOYS_PATH, loadedToys)   // bonus: was fire-and-forget
 
     return loadedToys
 }
 
 function _generateToy(idx) {
-
-
     const toyNames = [
         'Talking Doll', 'Remote Control Car', 'Building Blocks Set',
         'Stuffed Teddy Bear', 'Wooden Train Set', 'Bubble Machine',
@@ -131,7 +141,6 @@ function _generateToy(idx) {
 
     const name = toyNames[idx % toyNames.length]
     const labelCount = Math.floor(Math.random() * 3) + 1
-
     const creator = _getRandomUser()
 
     return {
