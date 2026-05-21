@@ -56,10 +56,13 @@ async function getById(toyId) {
     }
 }
 
-async function remove(toyId) {
+async function remove(toyId, loggedInUser) {
     try {
         const idx = toys.findIndex(toy => toy._id === toyId)
         if (idx === -1) throw new Error('Toy not found')
+
+        const isCreator = toys[idx].creator._id === loggedInUser._id
+        if (!isCreator && !loggedInUser.isAdmin) throw new Error('Unauthenticated user')
 
         toys.splice(idx, 1)
         await _saveToysToFile()
@@ -74,6 +77,9 @@ async function save(toyToSave, loggedInUser) {
         if (toyToSave._id) {
             const idx = toys.findIndex(currToy => currToy._id === toyToSave._id)
             if (idx === -1) throw new Error('Toy not found')
+
+            const isCreator = toys[idx].creator._id === loggedInUser._id
+            if (!isCreator && !loggedInUser.isAdmin) throw new Error('Unauthenticated user')
 
             const toyToUpdate = toys[idx]
             toys[idx] = { ...toyToUpdate, ...toyToSave }
@@ -118,13 +124,19 @@ async function _generateToys(count = 10) {
     let loadedToys = await utilService.readJsonFile(TOYS_PATH)
     if (loadedToys && loadedToys.length > 0) return loadedToys
 
-    loadedToys = Array.from({ length: count }, (_, i) => _generateToy(i))
-    await utilService.writeJsonFile(TOYS_PATH, loadedToys)   // bonus: was fire-and-forget
+    else {
+        const allUsers = await utilService.readJsonFile(USERS_PATH)
+        const nonAdminUsers = allUsers.filter(user => !user.isAdmin)
 
-    return loadedToys
+        loadedToys = Array.from({ length: count }, (_, i) => _generateToy(i, nonAdminUsers))
+        await utilService.writeJsonFile(TOYS_PATH, loadedToys)
+        return loadedToys
+    }
 }
 
-function _generateToy(idx) {
+
+
+function _generateToy(idx, users) {  // ✅ receives users as param
     const toyNames = [
         'Talking Doll', 'Remote Control Car', 'Building Blocks Set',
         'Stuffed Teddy Bear', 'Wooden Train Set', 'Bubble Machine',
@@ -141,7 +153,7 @@ function _generateToy(idx) {
 
     const name = toyNames[idx % toyNames.length]
     const labelCount = Math.floor(Math.random() * 3) + 1
-    const creator = _getRandomUser()
+    const creator = _getRandomUser(users)  // ✅ pass users in
 
     return {
         _id: utilService.makeId('toy'),
@@ -155,10 +167,8 @@ function _generateToy(idx) {
     }
 }
 
-function _getRandomUser() {
-    let users = utilService.readJsonFileSync(USERS_PATH)
-    users = users.filter(user => !user.isAdmin)
+function _getRandomUser(users) {
     const idx = utilService.getRandomIntInclusive(0, users.length - 1)
-    const { _id, fullname } = users[idx]
-    return { _id, fullname }
+    const { _id, username } = users[idx]
+    return { _id, username }
 }

@@ -1,4 +1,4 @@
-import fs from 'fs'
+import fs from 'fs/promises'
 import fr from 'follow-redirects'
 import _ from 'lodash'
 
@@ -27,28 +27,27 @@ export const utilService = {
 
 
 
-function readJsonFile(path) {
-	return new Promise((resolve, reject) => {
-		fs.readFile(path, 'utf8', (err, data) => {
-			if (err) {
-				return reject(err)
-			}
-			const json = JSON.parse(data)
-			resolve(json)
-		})
-	})
+export async function readJsonFile(path) {
+	try {
+		const data = await fs.readFile(path, 'utf8')
+		if (!data || data.trim() === '') return []
+		return JSON.parse(data)
+	} catch (err) {
+		console.error('Error reading or parsing file from', path, err)
+		throw err
+	}
 }
 
-function writeJsonFile(path, data) {
-	return new Promise((resolve, reject) => {
-		const jsonData = JSON.stringify(data, null, 2)
-		fs.writeFile(path, jsonData, 'utf8', (err) => {
-			if (err) {
-				return reject(err)
-			}
-			resolve(jsonData)
-		})
-	})
+export async function writeJsonFile(path, data) {
+	const jsonData = JSON.stringify(data, null, 2)
+
+	try {
+		await fs.writeFile(path, jsonData, 'utf8')
+		return true
+	} catch (err) {
+		console.error('Error writing file to', path, err)
+		throw err
+	}
 }
 
 
@@ -96,9 +95,8 @@ function httpGet(url) {
 	})
 }
 
-
-function makeId(prefix) {
-	return _.uniqueId(prefix)
+export function makeId(prefix) {
+	return `${prefix}${crypto.randomUUID()}`
 }
 
 function makeLorem(size = 100) {

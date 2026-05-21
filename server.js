@@ -58,8 +58,9 @@ app.get('/api/toy/:id', async (req, res) => {
 
 app.delete('/api/toy/:id', requireUser, async (req, res) => {
     const { id } = req.params
+    const loggedInUser = req.verifiedUser
     try {
-        await toyService.remove(id)
+        await toyService.remove(id, loggedInUser)
         res.send({ msg: 'Toy removed', toyId: id })
     }
     catch (err) {
@@ -70,7 +71,7 @@ app.delete('/api/toy/:id', requireUser, async (req, res) => {
 
 app.put('/api/toy/:id', requireUser, async (req, res) => {
     const toy = req.body
-    const loggedInUser = authService.validateToken(req.cookies.loginToken)
+    const loggedInUser = req.verifiedUser
     try {
         const toyToUpdate = await toyService.save(toy, loggedInUser)
         res.send(toyToUpdate)
@@ -84,7 +85,8 @@ app.put('/api/toy/:id', requireUser, async (req, res) => {
 
 app.post('/api/toy/', requireUser, async (req, res) => {
     const toy = req.body
-    const loggedInUser = authService.validateToken(req.cookies.loginToken)
+    const loggedInUser = req.verifiedUser
+
     try {
         const toyToSave = await toyService.save(toy, loggedInUser)
         res.send(toyToSave)

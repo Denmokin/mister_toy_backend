@@ -1,8 +1,8 @@
 
-import { utilService } from "./util.service.js"
+import { readJsonFile, writeJsonFile, makeId } from "./util.service.js"
 
 const USERS_PATH = 'data/users.json'
-let users = []
+let users = await readJsonFile(USERS_PATH)
 
 export const userService = {
   query,
@@ -12,52 +12,75 @@ export const userService = {
   add
 }
 
-utilService.readJsonFile(USERS_PATH)
-  .then(data => {
-    users = data
-  })
 
-
-
-function query() {
-  const usersToReturn = users.map(user => ({ id: user.id, fullname: user.fullname, }))
-  return Promise.resolve(usersToReturn)
+async function query() {
+  try {
+    const usersToReturn = users.map(user => ({ _id: user._id, fullname: user.fullname, }))
+    return usersToReturn
+  }
+  catch (err) { 
+    console.error('userService.query failed:', err)
+    throw err
+  }
 }
 
-function getById(userId) {
-  const user = users.find(currUser => currUser.id === userId)
-  if (!user) return Promise.reject(new Error('Cant Find user with id: ' + userId))
-  return Promise.resolve(user)
+async function getById(userId) {
+  try {
+    const user = users.find(currUser => currUser.id === userId)
+    if (!user) throw new Error(`Can't find user with id ${userId}`)
+    return user
+  }
+  catch (err) {
+    console.error('userService.getById failed:', err)
+    throw err
+  }
 }
 
-function getByUsername(userName) {
-  const user = users.find(currUser => currUser.username.toLowerCase() === userName.toLowerCase()
-  )
-  return Promise.resolve(user)
+async function getByUsername(userName) {
+  try {
+    const user = users.find(
+      currUser => currUser.username.toLowerCase() === userName.toLowerCase()
+    )
+    return user || null
+  }
+  catch (err) {
+    console.error('userService.getByUsername failed:', err)
+    throw err
+  }
 }
 
-function remove(userId) {
-  users = users.filter(currUser => currUser.id !== userId)
-  return _saveUsersToFile()
+async function remove(userId) {
+  try {
+    users = users.filter(currUser => currUser.id !== userId)
+    await _saveUsersToFile()
+  }
+  catch (err) {
+    console.error('userService.remove failed:', err)
+    throw err
+  }
 }
 
-function add(user) {
-  return getByUsername(user.username)
-    .then(existingUser => {
-      if (existingUser) return Promise.reject(new Error('Username taken'))
+async function add(user) {
 
-      user._id = utilService.makeId('user')
-      users.push(user)
+  try {
+    const existingUser = await getByUsername(user.username)
+    if (existingUser) throw new Error('Username taken')
 
-      return _saveUsersToFile()
-        .then(() => {
-          user = { ...user }
-          delete user.password
-          return user
-        })
-    })
+    user._id = makeId('user')
+    users.push(user)
+    await _saveUsersToFile()
+
+    const safeUser = { ...user }
+    delete safeUser.password
+    return safeUser
+  }
+
+  catch (err) {
+    console.error('userService.add failed:', err)
+    throw err
+  }
 }
 
-function _saveUsersToFile() {
-  return utilService.writeJsonFile(USERS_PATH, users)
+async function _saveUsersToFile() {
+  return await writeJsonFile(USERS_PATH, users)
 }

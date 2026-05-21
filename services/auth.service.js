@@ -9,17 +9,20 @@ export const authService = {
     validateToken,
 }
 
-function checkLogin({ username, password }) {
-
-    return userService.getByUsername(username)
-        .then(user => {
-            if (user && user.password === password) {
-                user = { ...user }
-                delete user.password
-                return Promise.resolve(user)
-            }
-            return Promise.reject()
-        })
+async function checkLogin({ username, password }) {
+    try {
+        let user = await userService.getByUsername(username)
+        if (user && user.password === password) {
+            user = { ...user }
+            delete user.password
+            return user
+        }
+        throw new Error(`Username or password are wrong`)
+    }
+    catch (err) {
+        console.error('authService.checkLogin failed:', err)
+        throw err
+    }
 }
 
 function getLoginToken(user) {
@@ -41,6 +44,6 @@ export function requireUser(req, res, next) {
     if (!loggedInUser) {
         return res.status(401).send('Unauthenticated...')
     }
-    req.loggedInUser = loggedInUser
+    req.verifiedUser = loggedInUser
     next()
 }

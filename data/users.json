@@ -29,5 +29,17 @@
     "username": "Admin",
     "password": "admin",
     "isAdmin": "true"
+  },
+  {
+    "username": "Gman",
+    "password": "123456",
+    "fullname": "G M",
+    "_id": "user2"
+  },
+  {
+    "username": "GG",
+    "password": "gg",
+    "fullname": "100",
+    "_id": "user5ee35973-24e0-42a1-8cc4-dd241a0da195"
   }
 ]
