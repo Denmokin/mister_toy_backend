@@ -96,7 +96,7 @@ function httpGet(url) {
 }
 
 export function makeId(prefix) {
-	return `${prefix}${crypto.randomUUID()}`
+	return `${prefix}_${Math.random().toString(36).substring(2, 8)}`
 }
 
 function makeLorem(size = 100) {
